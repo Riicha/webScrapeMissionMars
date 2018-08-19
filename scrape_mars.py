@@ -5,10 +5,11 @@
 
 # Dependencies
 import pandas as pd
+from splinter import Browser
 import requests
 
 import time
-from splinter import Browser
+
 from bs4 import BeautifulSoup
 from selenium import webdriver
 
@@ -41,24 +42,20 @@ def scrape():
 #---------------------------------------------------------------------------------#
     # Latest News Title from NASA Mars News Site
 #---------------------------------------------------------------------------------#
-    print("Test 1")
+
     news_title = news_soup.find_all('div', class_='content_title')
-    print(news_title[0].text)
-    print("Test 2")
 
 #---------------------------------------------------------------------------------#
     # Latest News Paragraph Text from NASA Mars News Site
 #---------------------------------------------------------------------------------#
     news_p = news_soup.find_all('div', class_='article_teaser_body')
-    print(news_p[0].text)
-    print("Test 3")
+
 
 #---------------------------------------------------------------------------------#
     # # Adding latest news and paragraph title to the dictionary
 #---------------------------------------------------------------------------------#
     mars['news_title'] = news_title[0].text
     mars['news_p'] = news_p[0].text
-    print("Test 4")
 
     # JPL Mars Space Images - Featured Image
 #---------------------------------------------------------------------------------#
@@ -66,7 +63,7 @@ def scrape():
 #---------------------------------------------------------------------------------#
     url_JPL_images = 'https://www.jpl.nasa.gov/spaceimages/?search=&category=Mars'
     browser.visit(url_JPL_images)
-    print("Test 5")
+
 #---------------------------------------------------------------------------------#
     # Browse through the pages
  #---------------------------------------------------------------------------------#
@@ -76,20 +73,17 @@ def scrape():
     full_image_elem = browser.find_by_id('full_image')
     full_image_elem.click()
     time.sleep(2)
-    print("Test 6")
 
 
     # Click the more info button
     more_info_elem = browser.find_link_by_partial_text('more info')
     more_info_elem.click()
     time.sleep(2)
-    print("Test 7")
 
 
     # Using BeautifulSoup create an object and parse with 'html.parser'
     html = browser.html
     img_soup = BeautifulSoup(html, 'html.parser')
-    print("Test 8")
 
 
     # find the relative image url
@@ -100,11 +94,9 @@ def scrape():
     baseUrl = 'https://www.jpl.nasa.gov'
     featured_image_url = baseUrl + img_url_rel
     featured_image_url
-    print("Test 9")
 
     # Adding featured image url to the dictionary
     mars['featured_image_url'] = featured_image_url
-    print("Test 10")
 
 #---------------------------------------------------------------------------------#
     # Mars Weather
@@ -149,7 +141,6 @@ def scrape():
 
     mars['facts'] = table
     
-    print("Test 11")
 
  #---------------------------------------------------------------------------------#
 
@@ -162,16 +153,16 @@ def scrape():
     hemisphereBaseUrl = 'https://astrogeology.usgs.gov'
     browser.visit(hemispheresurl)
     soup = BeautifulSoup(browser.html,'html5lib')
-    hemispheres = soup.find('div', class_='collapsible results').find_all('a')
+    hemispheres = soup.find_all('div', class_='item')
     
     # Create an empty list to hold dictionaries of hemisphere title with the image url string
-   
     hemisphere_image_urls = []
     hemispheredict = {}
 
     # Loop through those links, click the link, find the sample anchor, return the href
     for hemisphere in hemispheres:
-        hemisphereLink = hemisphere.get('href')
+        
+        hemisphereLink = hemisphere.find("a",class_="product-item")['href']
 
         browser.visit(hemisphereBaseUrl + hemisphereLink)
         soup = BeautifulSoup(browser.html, 'html.parser')
@@ -183,7 +174,8 @@ def scrape():
         imgUrl = soup.find('img',class_='wide-image').get('src')
         imgUrl = hemisphereBaseUrl + imgUrl
         hemispheredict = {"title": hemisphereTitle, "img_url":imgUrl}
-
+        
+        
         # Append hemisphere object to list
         hemisphere_image_urls.append(hemispheredict)
 
@@ -192,5 +184,5 @@ def scrape():
 
     browser.quit()
 
-    print("hi!!")
+  
     return mars
