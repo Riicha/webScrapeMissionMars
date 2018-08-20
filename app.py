@@ -3,7 +3,8 @@ from flask_pymongo import PyMongo
 from pymongo import MongoClient
 import scrape_mars
 
-app=Flask(__name__)
+# app=Flask(__name__, )
+app = Flask(__name__, template_folder='templates')
 conn = 'mongodb://localhost:27017'
 mongo = MongoClient(conn)
 # mongo = PyMongo(app)
