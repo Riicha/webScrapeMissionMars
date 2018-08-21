@@ -17,6 +17,22 @@ import tweepy
 import TweepyCredentials # twitter keys and tokens
 import pymongo
 
+import logging # imported for logging
+from datetime import datetime
+
+# create logger with 'mars_application'
+logger = logging.getLogger('mars_application')
+logger.setLevel(logging.DEBUG)
+# create file handler which logs even debug messages
+fh = logging.FileHandler('mars.log')
+fh.setLevel(logging.DEBUG)
+# add the handlers to the logger
+logger.addHandler(fh)
+
+def unauthorized():
+    errmsg = "Please supply credentials for twitter to get weather details."
+    return errmsg
+
 # Setting up splinter
 def init_browser():
     executable_path = {"executable_path": "chromedriver"}
@@ -117,11 +133,14 @@ def scrape():
     # Target User
     target_user = "@MarsWxReport"
 
+    try:
+        # Retrive the latest tweet
+        tweet = api.user_timeline(target_user)
+        mars_weather = tweet[0]['text']
+    except Exception as ex:
+        logger.info(ex)
+        mars_weather = unauthorized()
 
-    # Retrive the latest tweet
-    tweet = api.user_timeline(target_user)
-    mars_weather = tweet[0]['text']
-    mars_weather
 
     # Adding Mars weather from the latest rweet  to the dictionary
     mars['mars_weather'] = mars_weather
